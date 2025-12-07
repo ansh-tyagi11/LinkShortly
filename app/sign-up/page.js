@@ -1,11 +1,33 @@
+"use client";
 import React from "react";
 import Link from "next/link";
-
-export const metadata = {
-  title: "Sign-Up - SwiftLink",
-};
+import { useState } from "react";
+import { createUserAccount } from "@/actions/useractions";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const [signUpData, setSignUpData] = useState({ name: "", email: "", password: "", });
+  const router = useRouter();
+
+  const handleChange = (e) => {
+    setSignUpData({ ...signUpData, [e.target.name]: e.target.value })
+  }
+  console.log(signUpData)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    let data = await createUserAccount(signUpData);
+
+    if (!data) {
+      alert(`The email ${signUpData.email} is already registered. Please log in instead.`);
+      router.push('/login')
+    }
+    else if (data) {
+      router.push('/home')
+    }
+  }
+
   return (
 
     <div className="font-display">
@@ -60,7 +82,7 @@ export default function SignUpPage() {
                     </p>
                   </div>
 
-                  <form action="#" className="space-y-6" method="POST">
+                  <form onSubmit={handleSubmit} className="space-y-6" method="POST">
                     <div className="space-y-4">
 
                       <label className="flex flex-col">
@@ -68,10 +90,13 @@ export default function SignUpPage() {
 
                         <input
                           type="text"
-                          name="text"
+                          name="name"
+                          value={signUpData.name}
                           autoComplete="name"
                           className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-[#3a2f44] bg-[#faf8fc] dark:bg-[#1f142b] focus:border-primary h-14 placeholder:text-[#734c9a] p-[15px] text-base font-normal leading-normal" placeholder="Enter your full name"
-                          required={true} />
+                          required={true}
+                          onChange={handleChange}
+                        />
                       </label>
 
                       <label className="flex flex-col">
@@ -80,10 +105,13 @@ export default function SignUpPage() {
                         <input
                           type="email"
                           name="email"
-                          autoComplete="email"
+                          value={signUpData.email}
+                          // autoComplete="email"
                           className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-[#3a2f44] bg-[#faf8fc] dark:bg-[#1f142b] focus:border-primary h-14 placeholder:text-[#734c9a] p-[15px] text-base font-normal leading-normal"
                           placeholder="Enter your email address"
-                          required={true} />
+                          required={true}
+                          onChange={handleChange}
+                        />
                       </label>
 
                       <label className="flex flex-col">
@@ -93,15 +121,18 @@ export default function SignUpPage() {
                           <input
                             type="password"
                             name="password"
-                            autoComplete="new-password"
+                            autoComplete="password"
+                            value={signUpData.password}
                             className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-[#140d1b] dark:text-white focus:outline-0 border-none bg-transparent h-14 placeholder:text-[#734c9a] p-[15px] pr-2 text-base font-normal leading-normal"
                             placeholder="Create a password"
-                            required={true} />
+                            required={true}
+                            onChange={handleChange}
+                          />
                         </div>
                       </label>
                     </div>
 
-                    <button className="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-linear-to-r from-violet-600 to-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                    <button type="submit" className="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-linear-to-r from-violet-600 to-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
                       <span className="truncate">Create Your Free Account</span>
                     </button>
 

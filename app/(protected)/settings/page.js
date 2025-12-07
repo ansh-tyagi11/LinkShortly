@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react'
 import SideBar from '@/components/SideBar';
 import { useSession } from 'next-auth/react';
 import { getUser } from '@/actions/useractions';
+import { getName } from '@/actions/useractions';
 
 export default function SwiftLinkSettings() {
     const { data: session, status } = useSession();
     const [data, setData] = useState({});
-    const [name, setName] = useState({ name: "" });
+    const [name, setName] = useState("");
 
     useEffect(() => {
         if (status == "authenticated")
@@ -21,7 +22,8 @@ export default function SwiftLinkSettings() {
     console.log(data)
 
     const updateName = async () => {
-        let name = await getName(session.user.email, name)
+        const updatedName = await getName(name, session.user.email);
+        setName(updatedName)
     }
     console.log(name)
 
@@ -69,6 +71,7 @@ export default function SwiftLinkSettings() {
                                                 onChange={(e) => setName(e.target.value)}
                                                 className="h-11 w-full rounded-lg border border-gray-300 bg-transparent p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                                 placeholder="Enter your full name"
+                                                required
                                             />
                                         </label>
 
@@ -91,7 +94,7 @@ export default function SwiftLinkSettings() {
                                 <button className="flex h-9 min-w-[84px] items-center justify-center rounded-lg bg-gray-200 px-4 text-sm font-medium text-gray-900 hover:bg-gray-300">
                                     Cancel
                                 </button>
-                                <button className="flex h-9 min-w-[84px] items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700" onClick={() => updateName()}>
+                                <button className="flex h-9 min-w-[84px] items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700"  disabled={!name} onClick={updateName}>
                                     Save Changes
                                 </button>
                             </div>
