@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 
 const otpStoreSchema = new mongoose.Schema(
     {
+        otpId: { type: String, required: true, unique: true, },
         email: { type: String, required: true, lowercase: true, trim: true, },
         name: { type: String, required: true, },
         password: { type: String, required: true, },

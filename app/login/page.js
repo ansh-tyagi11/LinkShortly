@@ -1,15 +1,14 @@
 "use client"
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-// export const metadata = {
-//   title: "Login - SwiftLink",
-// };
+import { generateLoginOtp } from '@/actions/useractions';
+import { toast } from 'react-toastify';
 
 export default function Login() {
-  const { data: session,status } = useSession();
+  const { data: session, status } = useSession();
+  const [loginData, setLoginData] = useState({ email: "", password: "" })
   const router = useRouter();
 
   useEffect(() => {
@@ -19,6 +18,23 @@ export default function Login() {
       // return;
     }
   }, [session, router])
+
+  const handleChange = (e) => {
+    setLoginData({ ...loginData, [e.target.name]: e.target.value })
+  }
+  console.log(loginData)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let sendData = await generateLoginOtp(loginData)
+    if (!sendData) {
+      toast("No user found.Kindly sign up first.", { type: "error" })
+      router.push("/sign-up")
+    }
+    else {
+      router.push((`/otp?email=${sendData.email}&id=${sendData.OTPid}`));
+    }
+  }
 
   return (
     <div className="font-display">
@@ -58,55 +74,62 @@ export default function Login() {
                     </p>
                   </div>
 
-                  <div className="mt-8 space-y-6">
-                    {/* Email */}
-                    <div>
-                      <label className="flex flex-col">
-                        <p className="text-[#140d1b] dark:text-gray-200 text-base font-medium leading-normal pb-2">
-                          Email Address
-                        </p>
-                        <input
-                          type="email"
-                          name="email"
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-base font-normal leading-normal"
-                          placeholder="Enter your email address"
-                          required={true}
-                        />
-                      </label>
-                    </div>
-
-                    {/* Password */}
-                    <div>
-                      <label className="flex flex-col">
-                        <div className="flex items-center justify-between pb-2">
-                          <p className="text-[#140d1b] dark:text-gray-200 text-base font-medium leading-normal">
-                            Password
+                  <form onSubmit={handleSubmit} method='POST'>
+                    <div className="mt-8 space-y-6">
+                      {/* Email */}
+                      <div>
+                        <label className="flex flex-col">
+                          <p className="text-[#140d1b] dark:text-gray-200 text-base font-medium leading-normal pb-2">
+                            Email Address
                           </p>
-                          <Link className="text-primary hover:underline text-sm font-medium leading-normal" href="#">
-                            Forgot Password?
-                          </Link>
-                        </div>
-
-                        <div className="flex w-full flex-1 items-stretch rounded-lg">
                           <input
-                            type="password"
-                            name="password"
-                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-[#140d1b] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-r-0 border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 pr-2 text-base font-normal leading-normal"
-                            placeholder="Enter your password"
+                            type="email"
+                            name="email"
+                            value={loginData.email}
+                            autoComplete='email'
+                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-base font-normal leading-normal"
+                            placeholder="Enter your email address"
                             required={true}
+                            onChange={handleChange}
                           />
-                          <div className="text-gray-500 dark:text-gray-400 flex border border-l-0 border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark items-center justify-center px-3 rounded-r-lg">
+                        </label>
+                      </div>
+
+                      {/* Password */}
+                      <div>
+                        <label className="flex flex-col">
+                          <div className="flex items-center justify-between pb-2">
+                            <p className="text-[#140d1b] dark:text-gray-200 text-base font-medium leading-normal">
+                              Password
+                            </p>
+                            <Link className="text-primary hover:underline text-sm font-medium leading-normal" href="#">
+                              Forgot Password?
+                            </Link>
                           </div>
-                        </div>
-                      </label>
+
+                          <div className="flex w-full flex-1 items-stretch rounded-lg">
+                            <input
+                              type="password"
+                              name="password"
+                              autoComplete='password'
+                              value={loginData.password}
+                              className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-[#140d1b] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-r-0 border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 pr-2 text-base font-normal leading-normal"
+                              placeholder="Enter your password"
+                              required={true}
+                              onChange={handleChange}
+                            />
+                            <div className="text-gray-500 dark:text-gray-400 flex border border-l-0 border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark items-center justify-center px-3 rounded-r-lg">
+                            </div>
+                          </div>
+                        </label>
+                      </div>
+
+                      {/* Login button */}
+                      <button type='submit' className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-linear-to-r from-primary to-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                        <span className="truncate">Log In</span>
+                      </button>
                     </div>
-
-                    {/* Login button */}
-                    <button className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-linear-to-r from-primary to-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
-                      <span className="truncate">Log In</span>
-                    </button>
-                  </div>
-
+                  </form>
                   {/* Divider */}
                   <div className="relative my-8 flex items-center">
                     <div className="grow border-t border-gray-300 dark:border-gray-700"></div>

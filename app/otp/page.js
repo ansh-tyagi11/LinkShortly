@@ -1,8 +1,9 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { verifySignupOtp, resendSignupOtp } from "@/actions/useractions";
+import { verifySignupOtp, resendSignupOtp, checkId } from "@/actions/useractions";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function VerifyPage() {
   const searchParams = useSearchParams();
@@ -11,25 +12,44 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [count, setCount] = useState(60);
   const email = searchParams.get("email");
+  const id = searchParams.get("id");
+  const router = useRouter();
 
   useEffect(() => {
-    setLoading(true)
-    timer2();
-    const timer = setTimeout(() => {
-      setLoading(false)
-      console.log("hi i am set time out")
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [count])
+    verifyPage();
 
-  const timer2 = () => {
-    if (count == 0) {
+    const time = setTimeout(() => {
+      toast("Your session has been expired.")
+      router.push("/sign-up")
+    }, 5 * 60 * 1000)
+
+    return () => clearTimeout(time);
+  }, [])
+
+  useEffect(() => {
+    if (count === 0) {
+      setLoading(false);
       return;
     }
-    const time = setTimeout(() => {
-      setCount(prev => prev - 1)
+
+    setLoading(true);
+
+    const timer = setTimeout(() => {
+      setCount(prev => prev - 1);
     }, 1000)
-    return () => clearTimeout(time)
+
+    return () => clearTimeout(timer);
+  }, [count]);
+
+  const verifyPage = async () => {
+    const isValid = await checkId(email, id);
+
+    if (!isValid) {
+      toast("No such OTP request found. Please sign  or login again.");
+      router.push("/sign-up");
+      return;
+    }
+
   }
 
   const handleChange = (e, index) => {
@@ -71,15 +91,14 @@ export default function VerifyPage() {
     if (otp.success) {
       toast("new Otp send to you email")
     }
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
+    else {
+      toast("Your Session has been expired.")
+    }
     return;
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background-light dark:bg-background-dark font-display text-[#131022] dark:text-white">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center p-4 bg-[#f6f6f8] dark:bg-[#101622] font-display text-[#131022] dark:text-white">
       <div className="w-full max-w-md">
         {/* Header */}
         <header className="flex items-center justify-center gap-4 text-[#100d1b] dark:text-white mb-8">
@@ -135,9 +154,9 @@ export default function VerifyPage() {
             </button>
             <button
               disabled={loading}
-              onClick={newOtp} className={`flex justify-between items-center w-full ${loading ? " cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
-              <p>{count}</p>
-              <p className="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal text-center underline hover:text-primary dark:hover:text-white ">Resend Code</p>
+              onClick={newOtp} className="flex justify-between items-center w-full">
+              <p className={`text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal text-center underline hover:text-primary dark:hover:text-white ${loading ? " cursor-not-allowed opacity-50" : "cursor-pointer"}`}>Resend Code</p>
+              <p className={`${loading ? "inline text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal text-center hover:text-primary dark:hover:text-white" : "hidden"}`}>You can resend the code in {count} seconds.</p>
             </button>
           </div>
         </main>

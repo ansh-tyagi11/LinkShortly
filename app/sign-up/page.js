@@ -40,7 +40,7 @@ export default function SignUpPage() {
         router.push("/login");
       }
       else {
-        router.push((`/otp?email=${data.email}`));
+        router.push((`/otp?email=${data.email}&id=${data.OTPid}`));
       }
 
     }, 1000);
@@ -124,7 +124,7 @@ export default function SignUpPage() {
                           type="email"
                           name="email"
                           value={signUpData.email}
-                          // autoComplete="email"
+                          autoComplete="email"
                           className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-[#3a2f44] bg-[#faf8fc] dark:bg-[#1f142b] focus:border-primary h-14 placeholder:text-[#734c9a] p-[15px] text-base font-normal leading-normal"
                           placeholder="Enter your email address"
                           required={true}
