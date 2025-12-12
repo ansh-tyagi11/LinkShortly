@@ -1,41 +1,39 @@
-"use client"
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+"use client";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { generateLoginOtp } from '@/actions/useractions';
-import { toast } from 'react-toastify';
+import { generateLoginOtp } from "@/actions/useractions";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const { data: session, status } = useSession();
-  const [loginData, setLoginData] = useState({ email: "", password: "" })
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const router = useRouter();
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push('/home')
-      console.log(session)
-      // return;
+      router.push("/home");
     }
-  }, [session, router])
+  }, [status, router]);
 
-  const handleChange = (e) => {
-    setLoginData({ ...loginData, [e.target.name]: e.target.value })
-  }
-  console.log(loginData)
+  const handleInputChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-
-    let sendData = await generateLoginOtp(loginData);
-
-    if (sendData.error) {
+    const sendData = await generateLoginOtp(credentials);
+    if (sendData?.error) {
       toast(sendData.error, { type: "error" });
+      return;
     }
-    else {
-      router.push((`/otp?email=${sendData.email}&id=${sendData.OTPid}`));
+    if (sendData?.email && sendData?.OTPid) {
+      router.push(`/otp?email=${encodeURIComponent(sendData.email)}&id=${encodeURIComponent(sendData.OTPid)}`);
+    } else {
+      toast("Unexpected response. Please try again.");
     }
-  }
+  };
 
   return (
     <div className="font-display">
@@ -75,7 +73,7 @@ export default function Login() {
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit} method='POST'>
+                  <form onSubmit={handleFormSubmit} method="POST">
                     <div className="mt-8 space-y-6">
                       {/* Email */}
                       <div>
@@ -86,12 +84,12 @@ export default function Login() {
                           <input
                             type="email"
                             name="email"
-                            value={loginData.email}
-                            autoComplete='email'
+                            value={credentials.email}
+                            autoComplete="email"
                             className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 text-base font-normal leading-normal"
                             placeholder="Enter your email address"
-                            required={true}
-                            onChange={handleChange}
+                            required
+                            onChange={handleInputChange}
                           />
                         </label>
                       </div>
@@ -112,21 +110,20 @@ export default function Login() {
                             <input
                               type="password"
                               name="password"
-                              autoComplete='password'
-                              value={loginData.password}
+                              value={credentials.password}
+                              autoComplete="password"
                               className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-[#140d1b] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-r-0 border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark h-12 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-3 pr-2 text-base font-normal leading-normal"
                               placeholder="Enter your password"
-                              required={true}
-                              onChange={handleChange}
+                              required
+                              onChange={handleInputChange}
                             />
-                            <div className="text-gray-500 dark:text-gray-400 flex border border-l-0 border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark items-center justify-center px-3 rounded-r-lg">
-                            </div>
+                            <div className="text-gray-500 dark:text-gray-400 flex border border-l-0 border-[#dbcfe7] dark:border-gray-700 bg-background-light dark:bg-background-dark items-center justify-center px-3 rounded-r-lg"></div>
                           </div>
                         </label>
                       </div>
 
                       {/* Login button */}
-                      <button type='submit' className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-linear-to-r from-primary to-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                      <button type="submit" className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-linear-to-r from-primary to-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
                         <span className="truncate">Log In</span>
                       </button>
                     </div>

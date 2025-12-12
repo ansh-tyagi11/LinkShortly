@@ -8,52 +8,52 @@ import { toast } from "react-toastify";
 import { signIn, useSession } from "next-auth/react";
 
 export default function SignUpPage() {
-  const [signUpData, setSignUpData] = useState({ name: "", email: "", password: "", });
-  const [loading, setLoading] = useState(false);
-  const { data: session, status } = useSession()
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status == "authenticated") {
-      router.push("/home")
+    if (status === "authenticated") {
+      router.push("/home");
     }
-  }, [session, status])
+  }, [status, router]);
 
-  const handleChange = (e) => {
-    setSignUpData({ ...signUpData, [e.target.name]: e.target.value })
-  }
-  console.log(signUpData)
+  const handleInputChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    setLoading(true);
+    setIsSubmitting(true);
 
     setTimeout(async () => {
+      const data = await createUserAccount(form);
+      setIsSubmitting(false);
 
-      const data = await createUserAccount(signUpData);
-
-      setLoading(false);
-
-      if (data.error) {
+      if (data?.error) {
         toast(data.error);
         router.push("/login");
-      }
-      else {
-        router.push((`/otp?email=${data.email}&id=${data.OTPid}`));
+        return;
       }
 
+      if (data?.email && data?.OTPid) {
+        router.push(`/otp?email=${encodeURIComponent(data.email)}&id=${encodeURIComponent(data.OTPid)}`);
+      } else {
+        toast("Unexpected error. Please try again.");
+      }
     }, 1000);
   };
 
   return (
-
     <div className="font-display">
       <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
         <div className="layout-container flex h-full grow flex-col">
           <div className="flex flex-1 items-stretch">
             <div className="flex min-h-screen w-full flex-col lg:flex-row">
-              {/*  Left Pane: Abstract Visual  */}
+              {/* Left Pane: Abstract Visual */}
               <div className="relative hidden w-full flex-1 items-center justify-center bg-violet-600 p-8 lg:flex lg:w-1/2">
                 <div className="absolute inset-0 z-0 opacity-20" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCuz71CwtVO8F2-nqxafyuIjCZisv2tS-80jOS1zOal0mTps_ZAGRWZjKhOGM_8HoMQ5LApdss5-xHrH3Ld3SP1C1aATS_lU7Gvdxj6jiYvPWBfX0ZHwHuf7KPDTdGdcQFgZ_B8eKHFPvl22HnQ7OIgr5qBr8DuC7RzeQJNWgQfJeRnZLUDHYqv_8TJV8Xw1rJOiRi_bTyVT3oe5WkoRIaJCnCBOnr35x5ZCcUYbq9anfedaoOua7zv-io39JP2fFUbgZGQopGgg9s')" }}></div>
                 <div className="absolute inset-0 z-10 bg-linear-to-br from-violet-600 to-blue-600 opacity-80"></div>
@@ -90,71 +90,74 @@ export default function SignUpPage() {
                   <p className="mt-2 text-lg font-light text-gray-200">Shorten. Share. Succeed.</p>
                 </div>
               </div>
-              {/* Right Pane: Sign-up Form  */}
+
+              {/* Right Pane: Sign-up Form */}
               <div className="flex w-full flex-1 items-center justify-center bg-background-light pb-0 py-12 px-4 dark:bg-background-dark sm:px-6 lg:w-1/2 lg:px-8">
                 <div className="w-full max-w-md space-y-8">
                   <div>
-                    <h2 className="text-center text-4xl font-black leading-tight tracking-[-0.033em] text-[#140d1b] dark:text-white">Create an Account</h2>
+                    <h2 className="text-center text-4xl font-black leading-tight tracking-[-0.033em] text-[#140d1b] dark:text-white">
+                      Create an Account
+                    </h2>
                     <p className="mt-2 text-center text-base font-normal leading-normal text-[#140d1b]/70 dark:text-white/70">
                       Get started with SwiftLink and shorten your first URL in seconds.
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-6" method="POST">
+                  <form onSubmit={handleFormSubmit} className="space-y-6" method="POST">
                     <div className="space-y-4">
-
                       <label className="flex flex-col">
                         <p className="text-base font-medium leading-normal pb-2 text-[#140d1b] dark:text-white">Full Name</p>
-
                         <input
                           type="text"
                           name="name"
-                          value={signUpData.name}
+                          value={form.name}
                           autoComplete="name"
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-[#3a2f44] bg-[#faf8fc] dark:bg-[#1f142b] focus:border-primary h-14 placeholder:text-[#734c9a] p-[15px] text-base font-normal leading-normal" placeholder="Enter your full name"
-                          required={true}
-                          onChange={handleChange}
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-[#3a2f44] bg-[#faf8fc] dark:bg-[#1f142b] focus:border-primary h-14 placeholder:text-[#734c9a] p-[15px] text-base font-normal leading-normal"
+                          placeholder="Enter your full name"
+                          required
+                          onChange={handleInputChange}
                         />
                       </label>
 
                       <label className="flex flex-col">
                         <p className="text-base font-medium leading-normal pb-2 text-[#140d1b] dark:text-white">Email Address</p>
-
                         <input
                           type="email"
                           name="email"
-                          value={signUpData.email}
+                          value={form.email}
                           autoComplete="email"
                           className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#140d1b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbcfe7] dark:border-[#3a2f44] bg-[#faf8fc] dark:bg-[#1f142b] focus:border-primary h-14 placeholder:text-[#734c9a] p-[15px] text-base font-normal leading-normal"
                           placeholder="Enter your email address"
-                          required={true}
-                          onChange={handleChange}
+                          required
+                          onChange={handleInputChange}
                         />
                       </label>
 
                       <label className="flex flex-col">
                         <p className="text-base font-medium leading-normal pb-2 text-[#140d1b] dark:text-white">Password</p>
-
                         <div className="flex w-full flex-1 items-stretch rounded-lg border border-[#dbcfe7] dark:border-[#3a2f44] bg-[#faf8fc] dark:bg-[#1f142b] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/50">
                           <input
                             type="password"
                             name="password"
                             autoComplete="password"
-                            value={signUpData.password}
+                            value={form.password}
                             className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-[#140d1b] dark:text-white focus:outline-0 border-none bg-transparent h-14 placeholder:text-[#734c9a] p-[15px] pr-2 text-base font-normal leading-normal"
                             placeholder="Create a password"
-                            required={true}
-                            onChange={handleChange}
+                            required
+                            onChange={handleInputChange}
                           />
                         </div>
                       </label>
                     </div>
 
-                    <button type="submit" className={`flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-linear-to-r from-violet-600 to-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]  ${loading && "opacity-50 cursor-not-allowed"
-                      }`}>
-                      {loading ? "Please wait..." : <span className="truncate">Create Your Free Account</span>}
+                    <button
+                      type="submit"
+                      className={`flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-linear-to-r from-violet-600 to-blue-600 text-white text-base font-bold leading-normal tracking-[0.015em] transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Please wait..." : <span className="truncate">Create Your Free Account</span>}
                     </button>
-
                   </form>
 
                   <div className="relative flex items-center py-2">
@@ -227,6 +230,6 @@ export default function SignUpPage() {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }

@@ -7,95 +7,92 @@ import { useRouter } from "next/navigation";
 
 export default function VerifyPage() {
   const searchParams = useSearchParams();
-  const [otp, setOtp] = useState(new Array(6).fill(""));
-  const inputsRef = useRef([]);
-  const [loading, setLoading] = useState(false);
-  const [count, setCount] = useState(60);
+  const [otpDigits, setOtpDigits] = useState(new Array(6).fill(""));
+  const inputRefs = useRef([]);
+  const [isCountingDown, setIsCountingDown] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(60);
   const email = searchParams.get("email");
-  const id = searchParams.get("id");
+  const requestId = searchParams.get("id");
   const router = useRouter();
 
   useEffect(() => {
-    verifyPage();
+    validateRequest();
 
-    const time = setTimeout(() => {
-      toast("Your session has been expired.")
-      router.push("/sign-up")
-    }, 5 * 60 * 1000)
+    const sessionTimer = setTimeout(() => {
+      toast("Your session has expired.");
+      router.push("/sign-up");
+    }, 5 * 60 * 1000);
 
-    return () => clearTimeout(time);
-  }, [])
+    return () => clearTimeout(sessionTimer);
+    
+  }, []);
 
   useEffect(() => {
-    if (count === 0) {
-      setLoading(false);
+    if (secondsLeft === 0) {
+      setIsCountingDown(false);
       return;
     }
 
-    setLoading(true);
-
-    const timer = setTimeout(() => {
-      setCount(prev => prev - 1);
-    }, 1000)
-
+    setIsCountingDown(true);
+    const timer = setTimeout(() => setSecondsLeft((prev) => prev - 1), 1000);
     return () => clearTimeout(timer);
-  }, [count]);
+  }, [secondsLeft]);
 
-  const verifyPage = async () => {
-    const isValid = await checkId(email, id);
-
-    if (!isValid) {
-      toast("No such OTP request found. Please sign  or login again.");
+  const validateRequest = async () => {
+    const exists = await checkId(email, requestId);
+    if (!exists) {
+      toast("No such OTP request found. Please sign up or log in again.");
       router.push("/sign-up");
-      return;
     }
+  };
 
-  }
-
-  const handleChange = (e, index) => {
+  const handleInputChange = (e, index) => {
     const value = e.target.value.replace(/\D/g, "");
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-    if (value && index < 5) inputsRef.current[index + 1].focus();
-  };
-
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      const newOtp = [...otp];
-      newOtp[index - 1] = "";
-      setOtp(newOtp);
-      inputsRef.current[index - 1].focus();
+    const next = [...otpDigits];
+    next[index] = value;
+    setOtpDigits(next);
+    if (value && index < otpDigits.length - 1 && inputRefs.current[index + 1]) {
+      inputRefs.current[index + 1].focus();
     }
   };
 
-  const verifyOtp = async () => {
-    const otpValue = otp.join("");
+  const handleInputKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      const next = [...otpDigits];
+      next[index - 1] = "";
+      setOtpDigits(next);
+      if (inputRefs.current[index - 1]) inputRefs.current[index - 1].focus();
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const otpValue = otpDigits.join("");
     if (!otpValue) {
-      toast("Kindly please fill otp.")
+      toast("Please enter the OTP.");
       return;
     }
-    console.log("OTP entered:", otpValue);
+    if (otpValue.length !== 6) {
+      toast("OTP must be 6 digits.");
+      return;
+    }
     const result = await verifySignupOtp(email, otpValue);
-    if (result.success && result.message) {
+    if (result?.success && result?.message) {
       toast(result.message);
     } else {
       toast("Invalid OTP. Please try again.");
     }
   };
 
-  const newOtp = async () => {
-    setLoading(true);
-    setCount(60);
-    let otp = await resendSignupOtp(email);
-    if (otp.success) {
-      toast("new Otp send to you email")
+  const handleResendOtp = async () => {
+    setIsCountingDown(true);
+    setSecondsLeft(60);
+    const resp = await resendSignupOtp(email);
+    if (resp?.success) {
+      toast("New OTP sent to your email.");
+    } else {
+      toast("Your session has expired.");
     }
-    else {
-      toast("Your Session has been expired.")
-    }
-    return;
-  }
+  };
 
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center p-4 bg-[#f6f6f8] dark:bg-[#101622] font-display text-[#131022] dark:text-white">
@@ -108,7 +105,9 @@ export default function VerifyPage() {
                 <path clipRule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fillRule="evenodd" />
               </g>
               <defs>
-                <clipPath id="clip0_6_535"><rect fill="white" height="48" width="48" /></clipPath>
+                <clipPath id="clip0_6_535">
+                  <rect fill="white" height="48" width="48" />
+                </clipPath>
               </defs>
             </svg>
           </div>
@@ -128,7 +127,7 @@ export default function VerifyPage() {
           {/* OTP Inputs */}
           <div className="flex justify-center py-3 w-full">
             <fieldset className="relative flex justify-center gap-3 sm:gap-4">
-              {otp.map((digit, index) => (
+              {otpDigits.map((digit, index) => (
                 <input
                   key={index}
                   type="text"
@@ -136,9 +135,9 @@ export default function VerifyPage() {
                   maxLength={1}
                   className="flex h-14 w-12 text-center text-lg font-bold [appearance:textfield] focus:outline-0 focus:ring-2 focus:ring-primary dark:bg-background-dark dark:text-white rounded-lg border border-gray-300 dark:border-white/20 focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   value={digit}
-                  onChange={(e) => handleChange(e, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  ref={(el) => (inputsRef.current[index] = el)}
+                  onChange={(e) => handleInputChange(e, index)}
+                  onKeyDown={(e) => handleInputKeyDown(e, index)}
+                  ref={(el) => (inputRefs.current[index] = el)}
                 />
               ))}
             </fieldset>
@@ -147,20 +146,23 @@ export default function VerifyPage() {
           {/* Actions */}
           <div className="flex flex-col w-full px-4 py-3 mt-5 gap-4">
             <button
-              onClick={verifyOtp}
+              onClick={handleVerifyOtp}
               className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-linear-to-r from-purple-600 to-blue-500 text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
             >
               <span className="truncate">Verify Code</span>
             </button>
-            <button
-              disabled={loading}
-              onClick={newOtp} className="flex justify-between items-center w-full">
-              <p className={`text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal text-center underline hover:text-primary dark:hover:text-white ${loading ? " cursor-not-allowed opacity-50" : "cursor-pointer"}`}>Resend Code</p>
-              <p className={`${loading ? "inline text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal text-center hover:text-primary dark:hover:text-white" : "hidden"}`}>You can resend the code in {count} seconds.</p>
+
+            <button disabled={isCountingDown} onClick={handleResendOtp} className="flex justify-between items-center w-full">
+              <p className={`text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal text-center underline hover:text-primary dark:hover:text-white ${isCountingDown ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
+                Resend Code
+              </p>
+              <p className={`${isCountingDown ? "inline text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal text-center hover:text-primary dark:hover:text-white" : "hidden"}`}>
+                You can resend the code in {secondsLeft} seconds.
+              </p>
             </button>
           </div>
         </main>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }
