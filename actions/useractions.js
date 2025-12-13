@@ -5,6 +5,7 @@ import OtpStore from "@/models/OtpStore";
 import argon2 from "argon2";
 import crypto from "crypto";
 import { sendEmails } from "@/lib/otpEmail";
+import { error } from "console";
 
 export const getUser = async (email) => {
     await connectDB();
@@ -27,8 +28,17 @@ export const getName = async (name, email) => {
 export const createUserAccount = async (form) => {
     await connectDB();
 
+    let invalidChars = [',', '\\', "'", '*', '+', '-', '/'];
+
     const name = form.name;
     const email = form.email;
+
+    for (let char of invalidChars) {
+        if (email.includes(char)) {
+            return { error: `Your email can’t include '${char}'. Please enter a valid email to continue.` };
+        };
+    }
+
     const hashedPassword = await argon2.hash(form.password, {
         type: argon2.argon2id,
         memoryCost: 2 ** 16,

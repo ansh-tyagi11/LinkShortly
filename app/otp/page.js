@@ -4,6 +4,7 @@ import { verifySignupOtp, resendSignupOtp, checkId } from "@/actions/useractions
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useSession, signIn } from "next-auth/react";
 
 export default function VerifyPage() {
   const searchParams = useSearchParams();
@@ -14,6 +15,7 @@ export default function VerifyPage() {
   const email = searchParams.get("email");
   const requestId = searchParams.get("id");
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     validateRequest();
@@ -68,16 +70,17 @@ export default function VerifyPage() {
   const handleVerifyOtp = async () => {
     const otpValue = otpDigits.join("");
     if (!otpValue) {
-      toast("Please enter the OTP.");
+      toast.warning("Please enter the OTP.");
       return;
     }
     if (otpValue.length !== 6) {
-      toast("OTP must be 6 digits.");
+      toast.warning("OTP must be 6 digits.");
       return;
     }
     const result = await verifySignupOtp(email, otpValue);
     if (result?.success && result?.message) {
-      toast(result.message);
+      toast.success(result.message);
+      router.push("/home");
     } else {
       toast("Invalid OTP. Please try again.");
     }
@@ -88,9 +91,9 @@ export default function VerifyPage() {
     setSecondsLeft(60);
     const resp = await resendSignupOtp(email);
     if (resp?.success) {
-      toast("New OTP sent to your email.");
+      toast.success("New OTP sent to your email.");
     } else {
-      toast("Your session has expired.");
+      toast.warning("Your session has expired.");
     }
   };
 
