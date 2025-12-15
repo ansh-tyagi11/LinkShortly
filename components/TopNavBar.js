@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { getUser } from '@/actions/useractions'
 
 const TopNavBar = () => {
@@ -8,16 +8,35 @@ const TopNavBar = () => {
     const [data, setData] = useState({})
 
     useEffect(() => {
+        userData();
+    }, [])
+
+    useEffect(() => {
         if (status === "authenticated") {
             userData();
         }
-    }, [session])
+    }, [session, status])
+
 
     const userData = async () => {
-        let data = await getUser(session.user.email)
-        setData(data)
+        try {
+            if (session) {
+                let data = await getUser(session.user.email)
+                setData(data)
+            }
+            const res = await fetch("/api/verifyUser");
+            const data2 = await res.json();
+            let a = await getUser(data2.user)
+            if (a) {
+                setData(a)
+            }
+            console.log(data2.user);
+        }
+        catch (error) {
+            console.log(error)
+        }
     }
-    console.log(data.name)
+
 
     return (
         <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-10 py-4 dark:border-slate-800 dark:bg-[#101122]">

@@ -11,13 +11,32 @@ export default function SwiftLinkSettings() {
     const [name, setName] = useState("");
 
     useEffect(() => {
+        userData();
+    }, [])
+
+    useEffect(() => {
         if (status == "authenticated")
             userData()
     }, [session])
 
     const userData = async () => {
-        let data = await getUser(session.user.email)
-        setData(data)
+        try {
+            if (session) {
+                let data = await getUser(session.user.email)
+                setData(data)
+            }
+            const res = await fetch("/api/verifyUser");
+            const data2 = await res.json();
+            let a = await getUser(data2.user)
+            if (a) {
+                // setEmail(a)
+                setData(a)
+            }
+            console.log(data2.user);
+        }
+        catch (error) {
+            console.log(error)
+        }
     }
     console.log(data)
 
@@ -94,7 +113,7 @@ export default function SwiftLinkSettings() {
                                 <button className="flex h-9 min-w-[84px] items-center justify-center rounded-lg bg-gray-200 px-4 text-sm font-medium text-gray-900 hover:bg-gray-300">
                                     Cancel
                                 </button>
-                                <button className="flex h-9 min-w-[84px] items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700"  disabled={!name} onClick={updateName}>
+                                <button className="flex h-9 min-w-[84px] items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700" disabled={!name} onClick={updateName}>
                                     Save Changes
                                 </button>
                             </div>

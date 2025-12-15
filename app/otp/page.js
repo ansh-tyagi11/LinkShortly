@@ -112,7 +112,7 @@ export default function VerifyPage() {
     let data = await res.json();
 
     if (res.ok && data.message) {
-      toast.success(result.message);
+      toast.success(res.message);
       router.push("/home");
     } else {
       toast("Invalid OTP. Please try again.");
