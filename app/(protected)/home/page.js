@@ -1,8 +1,22 @@
+"use client"
 import React from 'react'
 import SideBar from '@/components/SideBar';
 import TopNavBar from '@/components/TopNavBar';
+import { useState } from 'react';
+import { forShortUrl } from '@/actions/useractions';
 
 export default function SwiftLinkHome() {
+    const [link, setLink] = useState("")
+
+    const userData = () => {
+
+    }
+
+    const shortUrl = async (e) => {
+        e.preventDefault();
+        let afterShortUrl = await forShortUrl(link, email)
+    }
+
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col bg-gray-50">
             <div className="flex h-full min-h-screen">
@@ -22,11 +36,14 @@ export default function SwiftLinkHome() {
                                 <div className="flex flex-wrap items-center gap-4">
                                     <label className="flex flex-col min-w-40 flex-1">
                                         <input
+                                            type='text'
+                                            name='text'
+                                            onChange={(e) => setLink(e.target.value)}
                                             className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border border-slate-300 bg-gray-50 h-14 placeholder:text-gray-600 p-4 text-base font-normal leading-normal"
                                             placeholder="Paste a long URL to shorten..."
                                         />
                                     </label>
-                                    <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-8 bg-linear-to-r from-indigo-500 to-purple-500 text-white text-base font-bold leading-normal tracking-wide hover:opacity-90 transition-opacity">
+                                    <button type='submit' className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-8 bg-linear-to-r from-indigo-500 to-purple-500 text-white text-base font-bold leading-normal tracking-wide hover:opacity-90 transition-opacity">
                                         <span className="truncate">Shorten</span>
                                     </button>
                                 </div>

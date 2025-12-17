@@ -171,3 +171,33 @@ export const generateLoginOtp = async (form) => {
     await sendEmails(email, userName, otp);
     return { email, success: true, OTPid };
 };
+
+export async function updatePassword(email, password, confirmNewPassword) {
+    await connectDB();
+    let user = await User.findOne({ email: email })
+
+    console.log(user)
+    let userPasswordHash = user.signUp.password;
+    console.log(userPasswordHash)
+    const passwordMatch = await argon2.verify(userPasswordHash, password);
+    if (!passwordMatch) {
+        return { success: false, error: "Incorrect password." };
+    }
+
+    const newHashedPassword = await argon2.hash(confirmNewPassword, {
+        type: argon2.argon2id,
+        memoryCost: 2 ** 16,
+        timeCost: 3,
+        parallelism: 1,
+    });
+
+    user.signUp.password = newHashedPassword;
+    await user.save();
+    console.log("done")
+    return { success: true, message: "Password Updated Successfully." }
+}
+
+export async function forShortUrl() {
+    await connectDB()
+
+}
