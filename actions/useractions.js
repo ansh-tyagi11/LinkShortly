@@ -5,6 +5,9 @@ import OtpStore from "@/models/OtpStore";
 import argon2 from "argon2";
 import crypto from "crypto";
 import { sendEmails } from "@/lib/otpEmail";
+import ShortUrl from "@/models/ShortUrl";
+import { customAlphabet } from 'nanoid';
+import { log } from "console";
 
 export const getUser = async (email) => {
     await connectDB();
@@ -197,7 +200,75 @@ export async function updatePassword(email, password, confirmNewPassword) {
     return { success: true, message: "Password Updated Successfully." }
 }
 
-export async function forShortUrl() {
+export async function forShortUrl(originalUrl, email) {
     await connectDB()
 
+    let link = originalUrl.trim()
+
+    if (!link.startsWith("http://") && !link.startsWith("https://")) {
+        // http://localhost:3000/home
+        link = "http://" + link;
+    }
+
+    let user = await User.findOne({ email })
+
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const generateId = customAlphabet(alphabet, 6);
+
+    const shortId = generateId();
+
+    let already = await ShortUrl.findOne({ originalUrl: link, owner: user._id })
+    if (already) {
+        return { success: false, message: "This url shorten already have." }
+    }
+
+    await ShortUrl.create({
+        originalUrl: link,
+        shortId: shortId,
+        owner: user._id,
+    })
+
+    return { success: true, message: "Url shorten is created." }
+}
+
+// export async function forUserlink(email) {
+//     await connectDB();
+
+//     let a1 = await User.findOne(email)
+//     console.log(a1)
+//     let a2 = a1._id
+
+//     let a3 = await ShortUrl.find({ owner: a2 }).lean();
+
+//     a3.forEach(obj => delete obj._id);
+
+//     console.log(a3)
+//     console.log(
+//         "HI"
+//     )
+//     return { success: true, a3 };
+// }
+
+export async function forUserlink(email) {
+    await connectDB();
+    console.log(email)
+    // 1. Find the user
+    const user = await User.findOne({ email });
+    if (!user) {
+        return { success: false, message: "User not found" };
+    }
+
+    const userId = user._id;
+
+    // 2. Find user's short URLs as plain objects
+    let links = await ShortUrl.find({ owner: userId }).lean();
+
+    // 3. Convert to Client-safe format
+    links.forEach(link => {
+        delete link._id;           // remove MongoDB id
+        if (link.owner) link.owner = link.owner.toString(); // convert ObjectId to string
+    });
+
+    // 4. Return result
+    return { success: true, links };
 }

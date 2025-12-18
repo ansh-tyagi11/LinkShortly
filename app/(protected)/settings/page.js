@@ -1,24 +1,23 @@
 "use client";
 import React, { useEffect, useState } from 'react'
 import SideBar from '@/components/SideBar';
-import { useSession } from 'next-auth/react';
-import { getUser, getName, updatePassword } from '@/actions/useractions';
+import { getName, updatePassword } from '@/actions/useractions';
 import { toast } from 'react-toastify';
+import useUserData from '../hooks/useUserData';
 
 export default function SwiftLinkSettings() {
-    const { data: session, status } = useSession();
-    const [data, setData] = useState({});
+    const { data, setData, session } = useUserData();
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
     // const [error, setError] = useState(false)
 
-    useEffect(() => {
-        if (status === "loading") return;
+    // useEffect(() => {
+    //     if (status === "loading") return;
 
-        userData();
-    }, [status]);
+    //     userData();
+    // }, [status]);
 
     useEffect(() => {
         // If either field is empty, don't show error
@@ -37,32 +36,11 @@ export default function SwiftLinkSettings() {
         // }
     }, [newPassword, confirmNewPassword]);
 
-
-    const userData = async () => {
-        try {
-            if (session) {
-                let data = await getUser(session.user.email)
-                setData(data)
-            }
-            const res = await fetch("/api/verifyUser");
-            const verifyResponse = await res.json();
-            let verifyiedUser = await getUser(verifyResponse.user)
-            if (verifyiedUser) {
-                setData(verifyiedUser)
-                setName(verifyiedUser.name)
-            }
-            console.log(verifyResponse.user);
-        }
-        catch (error) {
-            console.log(error)
-        }
-        return { data }
-    }
-    console.log(data)
-
     const updateName = async () => {
         const updatedName = await getName(name, session?.user?.email || data.email);
         setName(updatedName)
+        // setData(prev => ({ ...prev, name: updatedName }));
+        toast.success("Name updated successfully!");
     }
     console.log(name)
 

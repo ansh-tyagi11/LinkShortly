@@ -11,6 +11,7 @@
     "argon2": "^0.44.0",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.0",
+    "nanoid": "^5.1.6",
     "next": "^16.0.7",
     "next-auth": "^4.24.13",
     "nodemailer": "^7.0.11",

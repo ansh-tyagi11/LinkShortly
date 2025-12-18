@@ -4,17 +4,33 @@ import SideBar from '@/components/SideBar';
 import TopNavBar from '@/components/TopNavBar';
 import { useState } from 'react';
 import { forShortUrl } from '@/actions/useractions';
+import useUserData from '../hooks/useUserData';
+import { toast } from 'react-toastify';
+// import useUserLinks from '../hooks/useUserLinks';
 
 export default function SwiftLinkHome() {
-    const [link, setLink] = useState("")
+    const { data, session } = useUserData();
+    // const { l } = useUserLinks();
+    const [link, setLink] = useState("");
 
-    const userData = () => {
-
-    }
+    // useEffect(() => {
+    //     // console.log(l)
+    //     console.log(data)
+    // }, [])
 
     const shortUrl = async (e) => {
         e.preventDefault();
-        let afterShortUrl = await forShortUrl(link, email)
+
+        let afterShortUrl = await forShortUrl(link, data.email || session.user.email)
+
+        if (!afterShortUrl.success) {
+            toast.error(afterShortUrl.message)
+            setLink("")
+        }
+        if (afterShortUrl.success) {
+            toast.success(afterShortUrl.message)
+            setLink("")
+        }
     }
 
     return (
@@ -43,7 +59,7 @@ export default function SwiftLinkHome() {
                                             placeholder="Paste a long URL to shorten..."
                                         />
                                     </label>
-                                    <button type='submit' className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-8 bg-linear-to-r from-indigo-500 to-purple-500 text-white text-base font-bold leading-normal tracking-wide hover:opacity-90 transition-opacity">
+                                    <button onClick={shortUrl} type='submit' className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-8 bg-linear-to-r from-indigo-500 to-purple-500 text-white text-base font-bold leading-normal tracking-wide hover:opacity-90 transition-opacity">
                                         <span className="truncate">Shorten</span>
                                     </button>
                                 </div>
