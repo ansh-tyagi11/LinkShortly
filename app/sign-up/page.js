@@ -220,7 +220,7 @@ export default function SignUpPage() {
                     <span className="truncate">Continue with Github</span>
                   </button>
 
-                  <p className="text-center text-sm">
+                  <p className="text-center text-sm pb-2.5 md:pb-0">
                     <span className="text-[#140d1b]/70 dark:text-white/70">Already have an account?</span>
                     <Link className="font-semibold text-bg-[#7f13ec]  hover:underline" href="/login">Log In</Link>
                   </p>

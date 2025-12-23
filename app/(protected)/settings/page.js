@@ -44,7 +44,7 @@ export default function LinkShortlySettings() {
         if (updatedPassword.success && updatedPassword.message) {
             toast.success(updatedPassword.message)
         }
-        if(!updatedPassword.success){
+        if (!updatedPassword.success) {
             toast.error(updatedPassword.message)
         }
         setPassword("")
@@ -59,8 +59,8 @@ export default function LinkShortlySettings() {
 
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto md:p-8 p-6 pt-8">
-                <div className='md:hidden block'><TopNavBar /></div>
+            <div className='md:hidden block'><TopNavBar /></div>
+            <main className="flex-1 overflow-y-auto md:p-8 p-6 pt-8 mt-[65px]">
                 <div className="mx-auto flex max-w-4xl flex-col gap-8">
                     {/* Profile Section */}
                     <div>

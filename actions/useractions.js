@@ -225,3 +225,15 @@ export async function deleteLink(id) {
     return { success: true, message: "Link deleted successfully." };
 
 }
+
+export async function updatedClick(id) {
+    await connectDB();
+
+    const doc = await ShortUrl.findById(id); // ✅ id is string
+
+    if (!doc) return;
+
+    doc.clicks += 1; // use correct field name
+    await doc.save();
+    return {success:true}
+}

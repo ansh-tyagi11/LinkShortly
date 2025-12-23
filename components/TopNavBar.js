@@ -99,8 +99,17 @@ const TopNavBar = () => {
             </div>
 
             <div className='md:hidden block'>
-                <div className='flex flex-row justify-between items-center pt-2  h-[100px] border-white bg-white w-full'>
-                    <div>Logo</div>
+                <div className='fixed top-0 left-0 z-50 flex w-full h-[75px] items-center justify-between bg-white pt-2'>
+
+                    <div className='flex items-center'>
+                        <img src="/favicon.png" width={32} height={32} alt="Logo" />
+                        <h2 className="font-bold leading-none tracking-[-0.015em] dark:text-white text-[28px]">
+                            <span className="bg-linear-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                                Link
+                            </span>
+                            Shortly
+                        </h2>
+                    </div>
                     <div>
                         <button onClick={toggleSidebar}
                             className="md:hidden fixed top-4 right-4 z-50 p-2 rounded-lg bg-white dark:bg-[#151C2C] shadow-lg border border-gray-200 dark:border-gray-800" >
@@ -110,7 +119,8 @@ const TopNavBar = () => {
                         </button>
 
                         {/* Overlay for mobile */}
-                        {isOpen && (<div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={toggleSidebar} />)}
+                        {isOpen && (<div className="md:hidden fixed inset-0 bg-black/50 z-40 pointer-events-auto" onClick={toggleSidebar} />)}
+
 
                         {/* Sidebar */}
                         <aside

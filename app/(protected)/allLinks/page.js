@@ -5,12 +5,21 @@ import SideBar from '@/components/SideBar';
 import TopNavBar from '@/components/TopNavBar';
 import useUserLinks from '../hooks/useUserLinks';
 import { toast } from 'react-toastify';
+import { updatedClick } from '@/actions/useractions';
 
 export default function Dashboard() {
     let { sortedLinks, deleteLink } = useUserLinks();
 
     const handleDelete = (id) => {
         deleteLink(id)
+    }
+
+    const updateClick = async (id) => {
+        let a = await updatedClick(id)
+
+        if (a.success) {
+            console.log("HO gya")
+        }
     }
 
     return (
@@ -25,7 +34,7 @@ export default function Dashboard() {
                     <main className="flex flex-1 flex-col lg:p-8 lg:pt-0" style={{ padding: 0 }}>
                         <div className='md:-ml-8 ml-0'><TopNavBar /></div>
 
-                        <div className="w-full max-w-7xl mx-auto p-6">
+                        <div className="w-full max-w-7xl mx-auto p-6 md:pt-6 pt-0 mt-[66px] md:mt-0">
                             {/*  PageHeading  */}
                             <div className="flex flex-wrap justify-between items-center gap-4 mb-6 pt-6">
                                 <div className="flex flex-col">
@@ -48,7 +57,7 @@ export default function Dashboard() {
                                         </div>
                                     </label>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="hidden md:block items-center gap-3">
                                     <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#151C2C] px-4 hover:bg-gray-50 dark:hover:bg-gray-800">
                                         <p className="text-gray-700 dark:text-gray-300 text-sm font-medium">Filter by Date</p>
                                         <span className="material-symbols-outlined text-xl text-gray-500 dark:text-gray-400">expand_more</span>
@@ -74,7 +83,7 @@ export default function Dashboard() {
                                                 <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center gap-2">
-                                                            <Link className="font-medium text-[#135bec] hover:underline" href={`${li.originalUrl}`} target="_blank">{process.env.NEXT_PUBLIC_BASE_URL}/{li.shortId}</Link>
+                                                            <Link onClick={() => updateClick(li._id)} className="font-medium text-[#135bec] hover:underline" href={`${li.originalUrl}`} target="_blank">{process.env.NEXT_PUBLIC_BASE_URL}/{li.shortId}</Link>
                                                             <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" onClick={() => {
                                                                 navigator.clipboard.writeText(
                                                                     `${process.env.NEXT_PUBLIC_BASE_URL}/${li.shortId}`
@@ -106,11 +115,12 @@ export default function Dashboard() {
                                 {sortedLinks.map((li) => (
                                     <div key={li._id}
                                         className="w-full max-w-full bg-white dark:bg-[#151C2C] border border-gray-200 dark:border-gray-800 rounded-xl p-4 space-y-2 overflow-hidden">
+
                                         {/* Short Link */}
                                         <div className="w-full">
                                             <p className="text-xs text-gray-500">Short Link</p>
                                             <div className='flex items-center gap-0'>
-                                                <Link className="text-[#135bec] font-medium break-all w-full" href={`${li.originalUrl}`} target="_blank">
+                                                <Link onClick={() => updateClick(li._id)} className="text-[#135bec] font-medium break-all w-full" href={`${li.originalUrl}`} target="_blank">
                                                     {process.env.NEXT_PUBLIC_BASE_URL}/{li.shortId}
                                                 </Link>
                                                 <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" onClick={() => {
@@ -123,12 +133,13 @@ export default function Dashboard() {
                                             </div>
                                         </div>
 
-                                        {/* Original URL */}
-                                        <div className="w-full">
+                                        <div className="w-full min-w-0">
                                             <p className="text-xs text-gray-500">Original URL</p>
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 break-all w-full">
-                                                {li.originalUrl}
-                                            </p>
+                                            <div className="w-full min-w-0">
+                                                <p className="text-sm text-gray-700 dark:text-gray-300 truncate" style={{ maxWidth: "200px" }} title={li.originalUrl}>
+                                                    {li.originalUrl}
+                                                </p>
+                                            </div>
                                         </div>
 
                                         {/* Stats */}
@@ -156,9 +167,6 @@ export default function Dashboard() {
                                     </div>
                                 ))}
                             </div>
-
-
-
                         </div>
                     </main>
                 </div>

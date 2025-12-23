@@ -9,20 +9,17 @@ const Navbar = () => {
                     <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
                         {/* Header */}
                         <header className="flex items-center justify-between whitespace-nowrap px-0 sm:px-10 py-3">
-                            <div className="flex items-center gap-4">
-                                <div className="text-[#135bec] size-6 sm:size-7">
-                                    <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                        <g clipPath="url(#clip0_6_535)">
-                                            <path clipRule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fillRule="evenodd"></path>
-                                        </g>
-                                        <defs>
-                                            <clipPath id="clip0_6_535">
-                                                <rect fill="white" height="48" width="48"></rect>
-                                            </clipPath>
-                                        </defs>
-                                    </svg>
+                            <div className="flex items-center md:gap-4">
+                                <div className="flex items-center gap-2">
+                                    <img src="/favicon.png" className='md:block hidden' width={64} height={32} alt="Logo" />
+                                    <img src="/favicon.png" className='md:hidden block' width={24} height={24} alt="Logo" />
+                                    <h2 className="font-bold leading-none tracking-[-0.015em] dark:text-white md:text-[32px] text-[16px]">
+                                        <span className="bg-linear-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                                            Link
+                                        </span>
+                                        Shortly
+                                    </h2>
                                 </div>
-                                <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] dark:text-white">LinkShortly</h2>
                             </div>
                             <div className="hidden md:flex flex-1 justify-center gap-9">
                                 <Link className="text-sm font-medium leading-normal hover:text-[#135bec] dark:text-gray-300 dark:hover:text-[#135bec]" href="/about">About</Link>

@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
                         <div
                             className="inline-flex items-center gap-2 bg-white dark:bg-[#1a2332] border border-gray-200 dark:border-gray-700 px-3 py-1 rounded-full shadow-sm">
                             <span className="material-symbols-outlined text-gray-400 text-[18px]">calendar_month</span>
-                            <p className="text-[#616f89] dark:text-gray-400 text-sm font-medium">Last Updated: October 24, 2023</p>
+                            <p className="text-[#616f89] dark:text-gray-400 text-sm font-medium">Last Updated: December 23, 2025</p>
                         </div>
                     </div>
                     <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 relative">

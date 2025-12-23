@@ -51,7 +51,7 @@ export default function LinkShortlyHome() {
 
                     {/* Page Content */}
                     <div className="flex-1 pt-10 p-6 md:p-10 md:pt-10 overflow-auto">
-                        <div className="max-w-4xl mx-auto">
+                        <div className="max-w-4xl mx-auto mt-[75px] md:mt-0">
                             {/* URL Shortener Card */}
                             <div className="md:p-6 p-4 rounded-xl bg-white shadow-lg">
                                 <div className="flex flex-wrap items-center justify-center gap-4">
@@ -113,7 +113,7 @@ export default function LinkShortlyHome() {
                                                         {process.env.NEXT_PUBLIC_BASE_URL}/{li.shortId}
                                                     </p>
 
-                                                    <p className="text-xs text-gray-600 truncate sm:max-w-md">
+                                                    <p className="text-xs text-gray-600 truncate sm:max-w-md" style={{ maxWidth: "200px" }}>
                                                         {li.originalUrl}
                                                     </p>
                                                 </div>

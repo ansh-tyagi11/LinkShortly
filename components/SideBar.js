@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 const SideBar = () => {
     const { data: session } = useSession();
     const pathname = usePathname();
-    const router=useRouter();
+    const router = useRouter();
 
     const isActive = (path) => pathname === path;
 
@@ -20,9 +20,9 @@ const SideBar = () => {
 
         const res = await fetch("/api/logout", {
             method: "POST",
-            credentials: "include", 
+            credentials: "include",
         });
-        let data=await res.json();
+        let data = await res.json();
         if (data.success) {
             toast.success(data.message)
             router.push("/login")
@@ -35,13 +35,17 @@ const SideBar = () => {
             <aside className='md:block hidden'>
                 <div className="flex h-screen md:w-64 w-12 shrink-0 flex-col justify-between border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C2C] p-4">
                     <div className="flex flex-col justify-between gap-4">
-                        <div className="flex items-center gap-3 p-2">
-                            <div className="flex items-center gap-3 px-3 py-2">
-                                <div
-                                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-10"
-                                    style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBcYiF_jiKYGvK0RxiZawDaWliD4EQh-uJ2XQxnAnve-AjLeuTxel5w3NAUe4_kxgcKzgbaXIomcxcHgnXzBZ4mZ5HzvDLXnW7qc1v3vjcBf0C9blCgUXkdZlvAYMbe9195TM2XiaF_IzNlXYBJUU3CvRwOyZdoZrYA2aHj-PS8IJwVCpvWy7XW-pK6ax0tJT3qjnQ8bnzSwv1eksVVkeK7n8rqPosVj7IzKVhH1L_3SIGjnNVVS-AXCil7Jca-byM8yGXu2Lu5-ofG")' }}
-                                />
-                                <h1 className="text-gray-900 dark:text-white text-lg font-bold leading-normal">LinkShortly</h1>
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center">
+                                <div className="flex items-center gap-2">
+                                    <img src="/favicon.png" width={32} height={32} alt="Logo" />
+                                    <h2 className="font-bold leading-none tracking-[-0.015em] dark:text-white text-[28px]">
+                                        <span className="bg-linear-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                                            Link
+                                        </span>
+                                        Shortly
+                                    </h2>
+                                </div>
                             </div>
                         </div>
                         <nav className="flex flex-col justify-items-start gap-2 mt-4">

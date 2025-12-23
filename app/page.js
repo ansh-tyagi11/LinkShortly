@@ -54,7 +54,7 @@ export default function Home() {
                 </div>
 
                 {/* Features Section */}
-                <div className="flex flex-col gap-10 px-4 pt-16 pb-0">
+                <div className="flex flex-col gap-10 px-4 md:pt-16 mt-4 pb-0">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-0 text-left">
                     <div className="flex flex-1 gap-4 rounded-xl bg-white dark:bg-gray-900/50 p-6 flex-col border border-gray-200 dark:border-gray-800">
                       <div className="text-[#135bec]">
